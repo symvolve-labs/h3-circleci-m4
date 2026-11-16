@@ -51,9 +51,16 @@ if rates.get("modelscope", 0) >= 30e6:
     mirrors = ["modelscope", "huggingface"]
 
 def downloaded():
-    return sum(path.stat().st_size for e in entries
-               for path in (root / e["path"], root / (e["path"] + ".part"))
-               if path.is_file())
+    size = 0
+    for entry in entries:
+        dest = root / entry["path"]
+        for path in (dest, dest.with_name(dest.name + ".part")):
+            try:
+                size += path.stat().st_size
+                break
+            except FileNotFoundError:
+                continue
+    return size
 
 deadline = time.monotonic() + 20 * 60
 for mirror in mirrors:
