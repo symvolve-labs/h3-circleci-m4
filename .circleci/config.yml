@@ -1,0 +1,25 @@
+version: 2.1
+parameters:
+  run_benchmark:
+    type: boolean
+    default: false
+jobs:
+  compare:
+    macos:
+      xcode: "16.4.0"
+    resource_class: m4pro.medium
+    environment:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - checkout
+      - run:
+          name: Verify hardware, test H3 Metal and compare 1024px renders
+          no_output_timeout: 55m
+          command: python3 -c 'import subprocess; subprocess.run(["bash", "bench.sh"], check=True, timeout=55*60)'
+      - store_artifacts:
+          path: results
+          destination: measurements
+workflows:
+  controlled:
+    when: << pipeline.parameters.run_benchmark >>
+    jobs: [compare]
