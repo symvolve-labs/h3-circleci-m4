@@ -64,4 +64,16 @@ if free < required:
 PY
 python fetch_weights.py
 sudo -n purge
-python harness/scripts/legacy_bench/compare.py --candidate candidate --weights weights --results results --pairs 3
+cp failure_diagnostics.py harness/scripts/legacy_bench/instrument/
+echo 'import failure_diagnostics' >> harness/scripts/legacy_bench/instrument/sitecustomize.py
+if python harness/scripts/legacy_bench/compare.py --candidate candidate --weights weights --results results --pairs 3; then
+  exit 0
+fi
+# If the release fails, retain a single candidate run for diagnosis on the same VM.
+if test -f results/1-baseline/stage-failure.json; then
+  cat results/1-baseline/stage-failure.json
+  sudo -n purge
+  H3_BENCH_DYLIB="$ROOT/results/audit.dylib" python harness/scripts/legacy_bench/trial.py \
+    --arm candidate --candidate candidate --weights weights --result results/diagnostic-candidate --timeout 600 || true
+fi
+exit 1

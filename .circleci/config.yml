@@ -6,7 +6,7 @@ parameters:
 jobs:
   compare:
     macos:
-      xcode: "16.4.0"
+      xcode: "26.4.1"
     resource_class: m4pro.medium
     environment:
       PYTHONUNBUFFERED: "1"
