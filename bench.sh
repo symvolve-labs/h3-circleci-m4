@@ -62,8 +62,6 @@ print("Free and required disk bytes:", free, required, flush=True)
 if free < required:
     raise SystemExit("Insufficient disk space for full model.")
 PY
-if ! h3-image-mlx fetch --models "$ROOT/weights" --source modelscope; then
-  h3-image-mlx fetch --models "$ROOT/weights" --source huggingface
-fi
+python fetch_weights.py
 sudo -n purge
 python harness/scripts/legacy_bench/compare.py --candidate candidate --weights weights --results results --pairs 3
